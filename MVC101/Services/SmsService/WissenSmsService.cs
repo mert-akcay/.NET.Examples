@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using MVC101.Models;
+﻿using MVC101.Models;
+using System.Diagnostics;
 
 namespace MVC101.Services.SmsService;
 
