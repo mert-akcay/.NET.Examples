@@ -7,7 +7,7 @@ namespace MVC101.Services.EmailService;
 
 public class OutlookEmailService : IEmailService
 {
-    public string SenderMail => "wissen.akademie@outlook.com";
+    public string SenderMail => "wissen.academies@outlook.com";
     public string Password => "123456789123456789abc";
     public string Smtp => "smtp-mail.outlook.com";
     public int SmtpPort => 587;
@@ -15,7 +15,7 @@ public class OutlookEmailService : IEmailService
 
     public Task SendMailAsync(MailModel model)
     {
-        var mail = new MailMessage {From = new MailAddress(this.SenderMail)};
+        var mail = new MailMessage { From = new MailAddress(this.SenderMail) };
 
         foreach (var c in model.To)
         {
@@ -29,8 +29,19 @@ public class OutlookEmailService : IEmailService
 
         foreach (var bcc in model.Bcc)
         {
-            mail.Bcc.Add(new MailAddress(bcc.Adress,bcc.Name));
+            mail.Bcc.Add(new MailAddress(bcc.Adress, bcc.Name));
         }
+
+        if (model.Attachs is { Count: > 0 })
+        {
+            foreach (var modelAttach in model.Attachs)
+            {
+                var fileStream = modelAttach as FileStream;
+                var info = new FileInfo(fileStream.Name);
+                mail.Attachments.Add(new Attachment(fileStream,info.Name));
+            }
+        }
+
 
         mail.Subject = model.Subject;
         mail.Body = model.Body;

@@ -10,21 +10,50 @@ namespace MVC101.Controllers
     {
         private readonly ISmsService _smsService;
         private readonly IEmailService _emailService;
+        private readonly IWebHostEnvironment _appEnvironment;
+        private readonly IServiceProvider _serviceProvider;
 
-        public HomeController(ISmsService smsService, IEmailService emailService)
+        public HomeController(ISmsService smsService, IEmailService emailService, IWebHostEnvironment appEnvironment, IServiceProvider serviceProvider)
         {
             _smsService = smsService;
             _emailService = emailService;
+            _appEnvironment = appEnvironment;
+            _serviceProvider = serviceProvider;
         }
 
-        public IActionResult Index()
+        public IServiceProvider Get_serviceProvider()
+        {
+            return _serviceProvider;
+        }
+
+        public IActionResult Index(IServiceProvider _serviceProvider, int id = 0)
         {
             var result = _smsService.Send(new SmsModel()
             {
                 TelefonNo = "12345",
                 Mesaj = "home/index çalıştı"
             });
-            _emailService.SendMailAsync(new MailModel()
+
+            var fileStream = new FileStream($"{_appEnvironment.WebRootPath}\\files\\aa.zip", FileMode.Open);
+
+
+
+            #region Factory Design Pattern
+
+            IEmailService emailService;
+            if (id %2 == 0)
+            {
+                emailService = _serviceProvider.GetService<SendGridEmailService>();
+            }
+            else
+            {
+                emailService = _serviceProvider.GetService<OutlookEmailService>();
+            }
+
+            #endregion
+
+
+            emailService.SendMailAsync(new MailModel()
             {
                 To = new List<EmailModel>()
                 {
@@ -35,8 +64,14 @@ namespace MVC101.Controllers
                     }
                 },
                 Subject = "Logged in....",
-                Body = "🚀 Successful login 🚀 "
+                Body = "🚀 Successful login 🚀 ",
+                Attachs = new List<Stream>()
+                {
+                    fileStream
+                }
             });
+
+            fileStream.Close();
 
             return View();
         }
