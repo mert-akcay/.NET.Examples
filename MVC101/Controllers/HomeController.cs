@@ -32,15 +32,10 @@ namespace MVC101.Controllers
                     {
                         Name ="Wissen",
                         Adress = "akcaymert603@gmail.com"
-                    },
-                    new EmailModel()
-                    {
-                        Name ="Serkan",
-                        Adress = "srknozsoz@gmail.com"
                     }
                 },
-                Subject = "Ah be Serkanım be ahh....",
-                Body = ":rocket: Just for you :rocket: "
+                Subject = "Logged in....",
+                Body = "🚀 Successful login 🚀 "
             });
 
             return View();
