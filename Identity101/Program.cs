@@ -1,12 +1,12 @@
 using Identity101.Data;
 using Identity101.Models.Identity;
+using Identity101.Services.Email;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var con1 = builder.Configuration.GetConnectionString("con1");
 builder.Services.AddDbContext<MyContext>(options => options.UseSqlServer(con1));
-
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
  {
      options.Password.RequireDigit = true;
@@ -32,7 +32,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 });
 
-
+builder.Services.AddTransient<IEmailService, OutlookEmailService>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
