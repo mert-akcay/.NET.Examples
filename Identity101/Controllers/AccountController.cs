@@ -3,6 +3,7 @@ using Identity101.Models.Identity;
 using Identity101.Models.Role;
 using Identity101.Services.Email;
 using Identity101.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -16,13 +17,15 @@ public class AccountController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IEmailService _emailService;
     private readonly RoleManager<ApplicationRole> _roleManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
 
-    public AccountController(UserManager<ApplicationUser> userManager, IEmailService emailService, RoleManager<ApplicationRole> roleManager)
+    public AccountController(UserManager<ApplicationUser> userManager, IEmailService emailService, RoleManager<ApplicationRole> roleManager, SignInManager<ApplicationUser> signInManager)
     {
         _userManager = userManager;
         _emailService = emailService;
         _roleManager = roleManager;
         CheckRoles();
+        _signInManager = signInManager;
     }
 
     private void CheckRoles()
@@ -114,7 +117,7 @@ public class AccountController : Controller
 
     public async Task<IActionResult> ConfirmEmail(string userId, string code)
     {
-        if(userId == null || code == null)
+        if (userId == null || code == null)
         {
             return RedirectToAction("Index", "Home");
         }
@@ -127,7 +130,7 @@ public class AccountController : Controller
             ? "Thank you for confirming your email"
             : "Error confirming your email.";
 
-        if(result.Succeeded && _userManager.IsInRoleAsync(user, Roles.Passive).Result)
+        if (result.Succeeded && _userManager.IsInRoleAsync(user, Roles.Passive).Result)
         {
             await _userManager.RemoveFromRoleAsync(user, Roles.Passive);
             await _userManager.AddToRoleAsync(user, Roles.User);
@@ -136,7 +139,50 @@ public class AccountController : Controller
         return View();
     }
 
+
+    [HttpGet("~/giris-yap")]
     public IActionResult Login()
+    {
+        return View();
+    }
+
+    [HttpPost("~/giris-yap")]
+    public async Task<IActionResult> Login(LoginViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var user = await _userManager.FindByNameAsync(model.UserName);
+
+        var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, true);
+
+        if (result.Succeeded)
+        {
+            return RedirectToAction("Index", "Home");
+        }
+        else if (result.IsLockedOut)
+        {
+
+        }
+        else if (result.RequiresTwoFactor)
+        {
+
+        }
+
+        ModelState.AddModelError(string.Empty, "Kullanıcı adı veya şifre hatalı");
+        return View(model);
+    }
+
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        await _signInManager.SignOutAsync();
+        return RedirectToAction("Index", "Home");
+    }
+
+    public IActionResult AccessDenied()
     {
         return View();
     }

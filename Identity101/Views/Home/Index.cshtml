@@ -1,0 +1,31 @@
+﻿@using Identity101.Models.Role
+@model Identity101.ViewModels.LoginViewModel
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>HomePage</title>
+</head>
+<body>
+	<div>
+		<h1>
+			Hoşgeldiniz
+		</h1>
+		@if (Context.User.Identity.IsAuthenticated)
+		{
+			if (Context.User.IsInRole(Roles.Admin))
+			{
+				<a asp-controller="Admin" asp-action="Index">Admin Panel</a> <br>
+			}
+			<a asp-controller="Account" asp-action="Logout">Çıkış Yap</a>
+		}
+		else
+		{
+			<a asp-controller="Account" asp-action="Login">Giriş Yap</a>
+		}
+
+	</div>
+</body>
+</html>
