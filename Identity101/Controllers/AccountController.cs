@@ -65,7 +65,7 @@ public class AccountController : Controller
     {
         if (!ModelState.IsValid)
         {
-            ModelState.AddModelError(string.Empty, "Bir hata oluştu");
+            ModelState.AddModelError(string.Empty, "Bir hata oluşmuş olabilir");
             return View(model);
         }
 
