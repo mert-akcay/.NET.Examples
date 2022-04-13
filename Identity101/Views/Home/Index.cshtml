@@ -19,11 +19,13 @@
 			{
 				<a asp-controller="Admin" asp-action="Index">Admin Panel</a> <br>
 			}
+			<a asp-controller="Account" asp-action="Profile">Profil</a>
 			<a asp-controller="Account" asp-action="Logout">Çıkış Yap</a>
 		}
 		else
 		{
-			<a asp-controller="Account" asp-action="Login">Giriş Yap</a>
+			<a asp-controller="Account" asp-action="Login">Giriş Yap</a> <br />
+			<a asp-controller="Account" asp-action="ResetPassword">Şifremi Unuttum</a>
 		}
 
 	</div>

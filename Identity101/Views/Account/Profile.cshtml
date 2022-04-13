@@ -1,0 +1,37 @@
+﻿@using Identity101.Models.Role
+@model Identity101.ViewModels.UserProfileViewModel
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>HomePage</title>
+</head>
+<body>
+	<div>
+		<h1>
+			@Model.Name @Model.Surname Profil
+		</h1>
+		<h4>
+			@ViewBag.Message
+		</h4>
+		<form asp-action="Profile" asp-controller="Account">
+			<label asp-for="Name"></label>
+			<input asp-for="Name" />
+			<span asp-validation-for="Name"></span><br />
+			<label asp-for="Surname"></label>
+			<input asp-for="Surname" />
+			<span asp-validation-for="Surname"></span><br />
+			<label asp-for="Email"></label>
+			<input asp-for="Email" />
+			<span asp-validation-for="Email"></span><br />
+			<input type="submit" value="Güncelle" />
+		</form>
+	</div>
+	<br />
+	<div>
+		<a asp-controller="Account" asp-action="ChangePassword">Şifre Değiştir</a> <br />
+	</div>
+</body>
+</html>

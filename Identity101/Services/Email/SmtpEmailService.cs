@@ -7,15 +7,15 @@ using System.Text;
 namespace Identity101.Services.Email;
 
 
-public class OutlookEmailService : IEmailService
+public class SmtpEmailService : IEmailService
 {
     private readonly IConfiguration _config;
     public EmailSettings EmailSettings { get; }
 
-    public OutlookEmailService(IConfiguration config)
+    public SmtpEmailService(IConfiguration config)
     {
         _config = config;
-        this.EmailSettings = _config.GetSection("OutlookSettings").Get<EmailSettings>();
+        this.EmailSettings = _config.GetSection("GmailSettings").Get<EmailSettings>();
         
     }
 
