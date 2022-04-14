@@ -88,7 +88,7 @@ public class AccountController : Controller
             //Rol Atama
             var count = _userManager.Users.Count();
             result = await _userManager.AddToRoleAsync(user, count == 1 ? Roles.Admin : Roles.Passive);
-            
+
 
             //Email gönderme - Aktivasyon
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -313,10 +313,12 @@ public class AccountController : Controller
             return View(model);
         }
 
-        if (user.Email != model.Email)
+        bool isAdmin = await _userManager.IsInRoleAsync(user, Roles.Admin);
+        if (user.Email != model.Email && !isAdmin)
         {
-            await _userManager.RemoveFromRoleAsync(user, "User");
-            await _userManager.AddToRoleAsync(user, "Passive");
+            await _userManager.RemoveFromRoleAsync(user, Roles.User);
+            await _userManager.AddToRoleAsync(user, Roles.Passive);
+            user.EmailConfirmed = false;
 
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -324,10 +326,10 @@ public class AccountController : Controller
 
             var emailMessage = new MailModel()
             {
-                To = new List<EmailModel> { new EmailModel()
+                To = new List<EmailModel> { new()
                 {
-                    Adress = user.Email,
-                    Name = user.Name
+                    Adress = model.Email,
+                    Name = model.Name
                 }},
                 Body = $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here </a>.",
                 Subject = "Confirm your email"
@@ -354,6 +356,8 @@ public class AccountController : Controller
         return View(model);
     }
 
+
+    [Authorize]
     [HttpGet]
     public IActionResult ChangePassword()
     {
