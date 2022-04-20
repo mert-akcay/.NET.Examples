@@ -1,32 +1,35 @@
-﻿using Identity101.Models.Email;
-using Identity101.Models.Identity;
-using Identity101.Models.Role;
-using Identity101.Services.Email;
-using Identity101.ViewModels;
+﻿using System.Text;
+using System.Text.Encodings.Web;
+using AdminTemplate.Models.Email;
+using AdminTemplate.Models.Identity;
+using AdminTemplate.Models.Role;
+using AdminTemplate.Services.Email;
+using AdminTemplate.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using System.Text;
-using System.Text.Encodings.Web;
 
-namespace Identity101.Controllers;
+namespace AdminTemplate.Controllers;
+
 
 public class AccountController : Controller
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IEmailService _emailService;
     private readonly RoleManager<ApplicationRole> _roleManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly IEmailService _emailService;
 
-    public AccountController(UserManager<ApplicationUser> userManager, IEmailService emailService, RoleManager<ApplicationRole> roleManager, SignInManager<ApplicationUser> signInManager)
+
+    public AccountController(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IEmailService emailService, SignInManager<ApplicationUser> signInManager)
     {
         _userManager = userManager;
-        _emailService = emailService;
         _roleManager = roleManager;
-        CheckRoles();
+        _emailService = emailService;
         _signInManager = signInManager;
+        CheckRoles();
     }
+
 
     private void CheckRoles()
     {
@@ -44,26 +47,13 @@ public class AccountController : Controller
     }
 
 
-    [HttpGet("~/kayit-ol")]
+    [HttpGet]
     public IActionResult Register()
     {
-        _emailService.SendMailAsync(new MailModel()
-        {
-            To = new List<EmailModel>()
-                {
-                    new EmailModel()
-                    {
-                        Name ="Wissen",
-                        Adress = "akcaymert603@gmail.com"
-                    }
-                },
-            Subject = "Logged in....",
-            Body = "🚀 Successful login 🚀 "
-        });
         return View();
     }
 
-    [HttpPost("~/kayit-ol")]
+    [HttpPost]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
         if (!ModelState.IsValid)
@@ -72,7 +62,7 @@ public class AccountController : Controller
             return View(model);
         }
 
-        var user = new ApplicationUser
+        var user = new ApplicationUser()
         {
             UserName = model.UserName,
             Email = model.Email,
@@ -80,42 +70,39 @@ public class AccountController : Controller
             Surname = model.Surname
         };
 
-
-
         var result = await _userManager.CreateAsync(user, model.Password);
-        if (result.Succeeded)
+
+        if (!result.Succeeded)
         {
-            //Rol Atama
-            var count = _userManager.Users.Count();
-            result = await _userManager.AddToRoleAsync(user, count == 1 ? Roles.Admin : Roles.Passive);
-
-
-            //Email gönderme - Aktivasyon
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Scheme);
-
-            var emailMessage = new MailModel()
-            {
-                To = new List<EmailModel> { new EmailModel()
-                {
-                    Adress = user.Email,
-                    Name = user.Name
-                }},
-                Body = $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here </a>.",
-                Subject = "Confirm your email"
-            };
-
-            await _emailService.SendMailAsync(emailMessage);
-
-            //TODO: Login olma
-            return RedirectToAction("Login");
+            ModelState.AddModelError(string.Empty, "Bir hata oluştu");
+            return View(model);
         }
-        var messages = string.Join("<br>", result.Errors.Select(e => e.Description));
-        ModelState.AddModelError(string.Empty, messages);
-        return View(model);
 
+        var count = _userManager.Users.Count();
+        result = await _userManager.AddToRoleAsync(user, count == 1 ? Roles.Admin : Roles.Passive);
+
+        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+        var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Scheme);
+
+        var emailMessage = new MailModel()
+        {
+            To = new List<EmailModel> { new EmailModel()
+            {
+                Adress = user.Email,
+                Name = user.Name
+            }},
+            Body = $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here </a>.",
+            Subject = "Confirm your email"
+        };
+
+        await _emailService.SendMailAsync(emailMessage);
+
+
+
+        return RedirectToAction("Login");
     }
+
 
     public async Task<IActionResult> ConfirmEmail(string userId, string code)
     {
@@ -123,6 +110,7 @@ public class AccountController : Controller
         {
             return RedirectToAction("Index", "Home");
         }
+
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null) return NotFound($"Unable to load user with ID ${userId}");
 
@@ -132,11 +120,10 @@ public class AccountController : Controller
             ? "Thank you for confirming your email"
             : "Error confirming your email.";
 
-        if (result.Succeeded && _userManager.IsInRoleAsync(user, Roles.Passive).Result)
-        {
-            await _userManager.RemoveFromRoleAsync(user, Roles.Passive);
-            await _userManager.AddToRoleAsync(user, Roles.User);
-        }
+        if (!result.Succeeded || !_userManager.IsInRoleAsync(user, Roles.Passive).Result) return View();
+
+        await _userManager.RemoveFromRoleAsync(user, Roles.Passive);
+        await _userManager.AddToRoleAsync(user, Roles.User);
 
         return View();
     }
@@ -162,7 +149,7 @@ public class AccountController : Controller
 
         if (result.Succeeded)
         {
-            return RedirectToAction("Profile", "Account");
+            return RedirectToAction("Index", "Home");
         }
         else if (result.IsLockedOut)
         {
@@ -288,6 +275,7 @@ public class AccountController : Controller
         var user = await _userManager.FindByNameAsync(name);
         var model = new UserProfileViewModel()
         {
+            UserName = user.UserName,
             Email = user.Email,
             Name = user.Name,
             Surname = user.Surname
@@ -382,3 +370,4 @@ public class AccountController : Controller
         return View(model);
     }
 }
+

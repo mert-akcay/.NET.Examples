@@ -1,0 +1,79 @@
+﻿@model LoginViewModel
+@{
+    Layout = null;
+    ViewBag.Title = "Login";
+}
+
+<!doctype html>
+<html lang="tr" dir="ltr">
+<head>
+    <partial name="Partials/_StylesMeta"/>
+</head>
+<body>
+    <div class="login-img">
+        <div id="global-loader"></div>
+        <div class="page">
+            <div class="page-single">
+                <div class="container">
+                    <div class="row authentication">
+                        <div class="col col-login mx-auto">
+                            <div class="text-center mb-6">
+                                <img src="\assets\images\brand\logo.png" class="h-8" alt="">
+                            </div>
+                            <form class="card" method="post">
+                                <div class="card-body p-6 ">
+                                    <div class="card-title text-center">Login to your Account</div>
+                                    <div class="input-icon form-group wrap-input">
+                                        <span class="input-icon-addon search-icon">
+                                            <i class="mdi mdi-account"></i>
+                                        </span>
+                                        <input asp-for="UserName" class="form-control" placeholder="Username">
+                                        <span class="text text-danger" asp-validation-for="UserName"></span>
+                                    </div>
+                                    <div class="input-icon form-group wrap-input">
+                                        <span class="input-icon-addon search-icon">
+                                            <i class="zmdi zmdi-lock"></i>
+                                        </span>
+                                        <input asp-for="Password" class="form-control mb-0" placeholder="Password">
+                                        <label class="form-label">
+                                            <a asp-controller="Account" asp-action="ResetPassword" class="float-right small">I forgot password</a>
+                                        </label>
+                                        <span class="text text-danger" asp-validation-for="Password"></span>
+                                    </div>
+                                    <div class="form-group mt-5">
+                                        <label class="custom-control custom-checkbox">
+                                            <input asp-for="RememberMe" class="custom-control-input">
+                                            <span class="custom-control-label">Remember me</span>
+                                            <span class="text text-danger" asp-validation-for="RememberMe"></span>
+                                        </label>
+                                    </div>
+                                    <div class="form-footer">
+                                        <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+                                    </div>
+                                    <div class="text-center text-muted mt-3">
+                                        Don't have account yet? <a asp-controller="Account" asp-action="Register">Sign up</a>
+                                    </div>
+                                    <div class="flex-c-m text-center mt-5">
+                                        <a href="#" class="login100-social-item bg1">
+                                            <i class="fa fa-facebook"></i>
+                                        </a>
+
+                                        <a href="#" class="login100-social-item bg2">
+                                            <i class="fa fa-twitter"></i>
+                                        </a>
+
+                                        <a href="#" class="login100-social-item bg3">
+                                            <i class="fa fa-google"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <partial name="Partials/_Scripts"/>
+</body>
+</html>

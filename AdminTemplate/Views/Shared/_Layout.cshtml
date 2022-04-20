@@ -1,43 +1,39 @@
 ﻿<!doctype html>
 <html lang="tr" dir="ltr">
 <head>
-	<partial name="Partials/_StylesMeta" />
+    <partial name="Partials/_StylesMeta" />
 
 </head>
 <body class="">
-	<div id="global-loader"></div>
-	<div class="page">
-		<div class="page-main">
-			<partial name="Partials/_Header" />
-			<div class="wrapper">
-				<!-- Sidebar Holder -->
-				<partial name="Partials/_Sidebar" />
+    <div id="global-loader"></div>
+    <div class="page">
+        <div class="page-main">
+            <partial name="Partials/_Header" />
+            <div class="wrapper">
+                <!-- Sidebar Holder -->
+                <partial name="Partials/_Sidebar" />
 
-				<div class=" content-area">
-					<div class="page-header">
-						<h4 class="page-title">@ViewBag.Title</h4>
-					</div>
-					<div class=row>
-						<div class="col-md-12">
-							<div class="card">
-								<div class="card-body">
-									@RenderBody()
-								</div>
-							</div>
-						</div>
-					</div>
+                <div class=" content-area">
+                    <div class="page-header">
+                        <h4 class="page-title">@ViewBag.Title</h4>
+                    </div>
+                    <div class=row>
+                        <div class="col-md-12">
+                            @RenderBody()
+                        </div>
+                    </div>
 
-				</div>
-			</div>
-		</div>
+                </div>
+            </div>
+        </div>
 
-		<!--footer-->
-		<partial name="Partials/_Footer" />
-	</div>
+        <!--footer-->
+        <partial name="Partials/_Footer" />
+    </div>
 
-	<!-- BAck to top -->
-	<a href="#top" id="back-to-top" style="display: inline;"><i class="fa fa-angle-up"></i></a>
+    <!-- BAck to top -->
+    <a href="#top" id="back-to-top" style="display: inline;"><i class="fa fa-angle-up"></i></a>
 
-	<partial name="Partials/_Scripts" />
+    <partial name="Partials/_Scripts" />
 </body>
 </html>
