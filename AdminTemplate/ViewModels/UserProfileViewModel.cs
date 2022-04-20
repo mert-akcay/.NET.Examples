@@ -24,4 +24,7 @@ public class UserProfileViewModel
     [Display(Name = "Email")]
     [EmailAddress]
     public string Email { get; set; }
+
+
+    public DateTime RegisterDate { get; set; }
 }

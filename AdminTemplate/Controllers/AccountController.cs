@@ -273,19 +273,23 @@ public class AccountController : Controller
     {
         var name = HttpContext.User.Identity.Name;
         var user = await _userManager.FindByNameAsync(name);
-        var model = new UserProfileViewModel()
-        {
-            UserName = user.UserName,
-            Email = user.Email,
-            Name = user.Name,
-            Surname = user.Surname
-        };
-        return View(model);
+        var model = new UpdateProfilePasswordViewModel();
+
+         model.UserProfileVM = new UserProfileViewModel()
+         {
+             UserName = user.UserName,
+             Email = user.Email,
+             Name = user.Name,
+             Surname = user.Surname,
+             RegisterDate = user.RegisterDate
+         };
+
+         return View(model);
     }
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Profile(UserProfileViewModel model)
+    public async Task<IActionResult> Profile(UpdateProfilePasswordViewModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -302,7 +306,7 @@ public class AccountController : Controller
         }
 
         bool isAdmin = await _userManager.IsInRoleAsync(user, Roles.Admin);
-        if (user.Email != model.Email && !isAdmin)
+        if (user.Email != model.UserProfileVM.Email && !isAdmin)
         {
             await _userManager.RemoveFromRoleAsync(user, Roles.User);
             await _userManager.AddToRoleAsync(user, Roles.Passive);
@@ -316,8 +320,8 @@ public class AccountController : Controller
             {
                 To = new List<EmailModel> { new()
                 {
-                    Adress = model.Email,
-                    Name = model.Name
+                    Adress = model.UserProfileVM.Email,
+                    Name = model.UserProfileVM.Name
                 }},
                 Body = $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here </a>.",
                 Subject = "Confirm your email"
@@ -326,9 +330,9 @@ public class AccountController : Controller
             await _emailService.SendMailAsync(emailMessage);
         }
 
-        user.Name = model.Name;
-        user.Surname = model.Surname;
-        user.Email = model.Email;
+        user.Name = model.UserProfileVM.Name;
+        user.Surname = model.UserProfileVM.Surname;
+        user.Email = model.UserProfileVM.Email;
 
         var result = await _userManager.UpdateAsync(user);
         if (result.Succeeded)
