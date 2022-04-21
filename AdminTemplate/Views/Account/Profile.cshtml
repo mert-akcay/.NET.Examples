@@ -32,9 +32,14 @@
                                 </button>
                             </div>
                             <div class="text-center text-sm-right">
-                                @if (Context.User.IsInRole("Admin"))
+                                @if (Context.User.IsInRole(Roles.Admin))
                                 {
-                                    <span class="badge badge-secondary">Administrator</span>
+                                    <span class="badge badge-success">Administrator</span>
+                                }else if(Context.User.IsInRole(Roles.User)){
+                                    <span class="badge badge-primary">User</span>
+                                }else if(Context.User.IsInRole(Roles.Passive)){
+                                    <span class="badge badge-warning">Passive</span><br/>
+                                    <small class="text text-warning">Please confirm your email address</small>
                                 }
                                 <div class="text-muted"><small>Joined @Model.UserProfileVM.RegisterDate.ToShortDateString() </small></div>
                             </div>
@@ -43,31 +48,38 @@
 
                     <div class="tab-content pt-3">
                         <div class="tab-pane active">
-                            <form class="form" asp-controller="Account" asp-action="Profile" novalidate="">
+                            <form class="form" asp-controller="Account" asp-action="Profile" method="post">
+                                <div class="col text text-danger" asp-validation-summary="ModelOnly"></div>
+                                @if (ViewBag.Message != null)
+                                {
+                                    <div class="text text-success">@ViewBag.Message</div>
+                                }
                                 <div class="row">
-                                    <div class="col" asp-validation-summary="ModelOnly"></div>
-                                    @if (ViewBag.Message != null)
-                                    {
-                                        <div class="text text-success">@ViewBag.Message</div>
-                                    }
                                     <div class="col">
                                         <div class="row">
                                             <div class="col">
                                                 <div class="form-group">
-                                                    <label class="form-label">Full Name</label>
-                                                    <input asp-for="UserProfileVM.Name" class="form-control" name="example-text-input" placeholder="Name">
+                                                    <label class="form-label">First Name</label>
+                                                    <input asp-for="UserProfileVM.Name" class="form-control" placeholder="Name">
                                                     <span asp-validation-for="UserProfileVM.Name"></span>
                                                 </div>
                                             </div>
                                             <div class="col">
                                                 <div class="form-group">
-                                                    <label class="form-label">Username</label>
-                                                    <input class="form-control" asp-for="UserProfileVM.UserName" placeholder="Username">
-                                                    <span asp-validation-for="UserProfileVM.UserName"></span>
+                                                    <label class="form-label">Surname</label>
+                                                    <input asp-for="UserProfileVM.Surname" class="form-control" placeholder="Surname">
+                                                    <span asp-validation-for="UserProfileVM.Surname"></span>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row">
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label class="form-label">Username</label>
+                                                    <input class="form-control" asp-for="UserProfileVM.UserName" placeholder="UserName">
+                                                    <span asp-validation-for="UserProfileVM.UserName"></span>
+                                                </div>
+                                            </div>
                                             <div class="col-6">
                                                 <div class="form-group">
                                                     <label class="form-label">Email</label>
@@ -76,10 +88,10 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <input class="form-control" asp-for="UserProfileVM.RegisterDate" type="hidden">
                                     </div>
                                 </div>
                                 <div class="float-right mt-0 mb-0">
-                                    <button class="btn btn-secondary mr-3" type="submit">Cancel</button>
                                     <button class="btn btn-primary " type="submit">Update Profile</button>
                                 </div>
                             </form>
@@ -93,7 +105,13 @@
         <div class="card">
             <div class="card-header"><h2 class="card-title">Change Password</h2></div>
             <div class="card-body">
-                <form class="form" novalidate="">
+                <form class="form" asp-controller="Account" asp-action="ChangePassword">
+                    @if (TempData["PassSuccess"] != null)
+                    {
+                        <div class="text text-success">@TempData["PassSuccess"]</div>
+                    }else if(TempData["PassError"] != null){
+                        <div class="text text-danger">@TempData["PassError"]</div>
+                    }
                     <div class="row">
                         <div class="col-12 col-sm-6 mb-3">
                             <div class="row">
@@ -123,7 +141,6 @@
                         </div>
                     </div>
                     <div class="float-right mt-0 mb-0">
-                        <button class="btn btn-secondary mr-3" type="submit">Cancel</button>
                         <button class="btn btn-primary " type="submit">Change Password</button>
                     </div>
                 </form>

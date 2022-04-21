@@ -21,6 +21,7 @@
                                 <img src="\assets\images\brand\logo.png" class="h-8" alt="">
                             </div>
                             <form class="card" method="post">
+                                
                                 <div class="card-body p-6 ">
                                     <div class="card-title text-center">Login to your Account</div>
                                     <div class="input-icon form-group wrap-input">
@@ -47,6 +48,7 @@
                                             <span class="text text-danger" asp-validation-for="RememberMe"></span>
                                         </label>
                                     </div>
+                                    <div class="text text-danger" asp-validation-summary="ModelOnly"></div>
                                     <div class="form-footer">
                                         <button type="submit" class="btn btn-primary btn-block">Sign in</button>
                                     </div>

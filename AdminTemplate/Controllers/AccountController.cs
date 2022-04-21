@@ -145,11 +145,19 @@ public class AccountController : Controller
 
         var user = await _userManager.FindByNameAsync(model.UserName);
 
+        if (user == null)
+        {
+            ModelState.AddModelError(string.Empty, "User not found");
+            return View(model);
+        }
+
         var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, true);
 
         if (result.Succeeded)
         {
-            return RedirectToAction("Index", "Home");
+            HttpContext.Session.SetString("User", System.Text.Json.JsonSerializer.Serialize<ApplicationUser>(user));
+
+            return RedirectToAction("Profile", "Account");
         }
         else if (result.IsLockedOut)
         {
@@ -160,7 +168,7 @@ public class AccountController : Controller
 
         }
 
-        ModelState.AddModelError(string.Empty, "Kullanıcı adı veya şifre hatalı");
+        ModelState.AddModelError(string.Empty, "Username or password is incorrect");
         return View(model);
     }
 
@@ -273,24 +281,26 @@ public class AccountController : Controller
     {
         var name = HttpContext.User.Identity.Name;
         var user = await _userManager.FindByNameAsync(name);
-        var model = new UpdateProfilePasswordViewModel();
+        var model = new UpdateProfilePasswordViewModel
+        {
+            UserProfileVM = new UserProfileViewModel()
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                Name = user.Name,
+                Surname = user.Surname,
+                RegisterDate = user.RegisterDate
+            }
+        };
 
-         model.UserProfileVM = new UserProfileViewModel()
-         {
-             UserName = user.UserName,
-             Email = user.Email,
-             Name = user.Name,
-             Surname = user.Surname,
-             RegisterDate = user.RegisterDate
-         };
-
-         return View(model);
+        return View(model);
     }
 
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> Profile(UpdateProfilePasswordViewModel model)
     {
+
         if (!ModelState.IsValid)
         {
             return View(model);
@@ -301,11 +311,11 @@ public class AccountController : Controller
 
         if (user == null)
         {
-            ModelState.AddModelError(string.Empty, "Kullanıcı bulunamadı");
+            ModelState.AddModelError(string.Empty, "User not found!");
             return View(model);
         }
 
-        bool isAdmin = await _userManager.IsInRoleAsync(user, Roles.Admin);
+        var isAdmin = await _userManager.IsInRoleAsync(user, Roles.Admin);
         if (user.Email != model.UserProfileVM.Email && !isAdmin)
         {
             await _userManager.RemoveFromRoleAsync(user, Roles.User);
@@ -330,14 +340,18 @@ public class AccountController : Controller
             await _emailService.SendMailAsync(emailMessage);
         }
 
+
         user.Name = model.UserProfileVM.Name;
         user.Surname = model.UserProfileVM.Surname;
         user.Email = model.UserProfileVM.Email;
+        user.UserName = model.UserProfileVM.UserName;
 
         var result = await _userManager.UpdateAsync(user);
         if (result.Succeeded)
         {
-            ViewBag.Message = "Güncelleme başarılı";
+            ViewBag.Message = "Your profile has been updated successfully";
+            var userl = await _userManager.FindByNameAsync(user.UserName);
+            await _signInManager.SignInAsync(userl, true);
         }
         else
         {
@@ -348,30 +362,32 @@ public class AccountController : Controller
         return View(model);
     }
 
-    [Authorize]
-    [HttpGet]
-    public IActionResult ChangePassword()
-    {
-        return View();
-    }
 
-    [HttpPost]
-    public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+    [HttpPost, Authorize]
+    public async Task<IActionResult> ChangePassword(UpdateProfilePasswordViewModel model)
     {
+        if (!ModelState.IsValid)
+        {
+            TempData["PassError"] = "There has been an error.";
+            return RedirectToAction(nameof(Profile));
+        }
+
         var name = HttpContext.User.Identity.Name;
         var user = await _userManager.FindByNameAsync(name);
-        var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+        var result = await _userManager.ChangePasswordAsync(user, model.ChangePasswordVM.CurrentPassword, model.ChangePasswordVM.NewPassword);
 
         if (result.Succeeded)
         {
-            ViewBag.Message = "Güncelleme başarılı";
+            TempData["PassSuccess"] = "Your password has been changed successfully";
         }
         else
         {
             var message = string.Join("<br>", result.Errors.Select(x => x.Description));
-            ViewBag.Message = message;
+            TempData["PassError"] = message;
         }
-        return View(model);
+
+
+        return RedirectToAction(nameof(Profile));
     }
 }
 
