@@ -21,10 +21,9 @@
                         <div class="col d-flex flex-column flex-sm-row justify-content-between mb-3">
                             <div class="text-center text-sm-left mb-sm-0">
                                 <div>
-                                    <button class="btn btn-primary btn-block mt-5" type="button">
-                                        <i class="fa fa-fw fa-camera"></i>
-                                        <span>Change Photo</span>
-                                    </button>
+                                    <div class="col-sm-12">
+                                        <input type="file" class="dropify" data-height="180">
+                                    </div>
                                 </div>
                                 <button class="btn btn-secondary btn-block mt-2" type="button">
                                     <i class="fa fa-fw fa-camera"></i>
@@ -35,10 +34,16 @@
                                 @if (Context.User.IsInRole(Roles.Admin))
                                 {
                                     <span class="badge badge-success">Administrator</span>
-                                }else if(Context.User.IsInRole(Roles.User)){
+                                }
+                                else if (Context.User.IsInRole(Roles.User))
+                                {
                                     <span class="badge badge-primary">User</span>
-                                }else if(Context.User.IsInRole(Roles.Passive)){
-                                    <span class="badge badge-warning">Passive</span><br/>
+                                }
+                                else if (Context.User.IsInRole(Roles.Passive))
+                                {
+                                    <span class="badge badge-warning">Passive</span>
+
+                                    <br />
                                     <small class="text text-warning">Please confirm your email address</small>
                                 }
                                 <div class="text-muted"><small>Joined @Model.UserProfileVM.RegisterDate.ToShortDateString() </small></div>
@@ -60,7 +65,7 @@
                                             <div class="col">
                                                 <div class="form-group">
                                                     <label class="form-label">First Name</label>
-                                                    <input  asp-for="UserProfileVM.Name" class="form-control" placeholder="Name">
+                                                    <input asp-for="UserProfileVM.Name" class="form-control" placeholder="Name">
                                                     <span asp-validation-for="UserProfileVM.Name"></span>
                                                 </div>
                                             </div>
@@ -109,7 +114,9 @@
                     @if (TempData["PassSuccess"] != null)
                     {
                         <div class="text text-success">@TempData["PassSuccess"]</div>
-                    }else if(TempData["PassError"] != null){
+                    }
+                    else if (TempData["PassError"] != null)
+                    {
                         <div class="text text-danger">@TempData["PassError"]</div>
                     }
                     <div class="row">
@@ -148,3 +155,4 @@
         </div>
     </div>
 </div>
+

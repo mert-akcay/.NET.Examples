@@ -223,7 +223,7 @@ public class AccountController : Controller
             await _emailService.SendMailAsync(emailMessage);
         }
 
-        ViewBag.Message = "Eğer mail adresiniz doğru ise şifre güncelleme yönergemiz gönderilmiştir";
+        ViewBag.Message = "Password changing steps sent to your email if you're a valid used";
         return View();
     }
 
@@ -232,7 +232,7 @@ public class AccountController : Controller
     {
         if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(code))
         {
-            return BadRequest("Hatalı istek");
+            return BadRequest("Bad Request");
         }
 
         var model = new ResetPasswordViewModel()
@@ -254,7 +254,7 @@ public class AccountController : Controller
         var user = await _userManager.FindByIdAsync(model.UserId);
         if (user == null)
         {
-            ModelState.AddModelError(string.Empty, "Kullanıcı bulunamadı");
+            ModelState.AddModelError(string.Empty, "User Not Found");
             return View(model);
         }
 
@@ -275,7 +275,7 @@ public class AccountController : Controller
                 Subject = "Your password changed successfully"
             };
             await _emailService.SendMailAsync(emailMessage);
-            TempData["Message"] = "Şifre değişikliğiniz gerçekleştirilmiştir";
+            TempData["Message"] = "You changed your password successfully";
             return RedirectToAction("Login");
         }
 

@@ -1,0 +1,37 @@
+﻿@{
+    ViewBag.Title = "Not Found";
+}
+
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+    <partial name="Partials/_StylesMeta"/>
+</head>
+<body class="login-img">
+    <div id="global-loader"></div>
+    <div class="page">
+        <div class="page-content error-page">
+            <div class="container text-center">
+                <div class="error-template">
+                    <h1 class="display-1 text-white mb-5">
+                        Oops!
+                    </h1>
+                    <h2 class="h2  mb-3 text-transparent">
+                        404 Error
+                    </h2>
+                    <div class="error-details text-transparent">
+                        Sorry, an error has occured, Requested page not found!
+                    </div>
+                    <div class="error-actions mt-5">
+                        <a class="btn btn-secondary" asp-controller="Home" asp-action="Index">
+                            Back To Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <partial name="Partials/_Scripts"/>
+</body>
+</html>
