@@ -106,6 +106,7 @@ public class AccountController : Controller
 
     public async Task<IActionResult> ConfirmEmail(string userId, string code)
     {
+
         if (userId == null || code == null)
         {
             return RedirectToAction("Index", "Home");
@@ -116,9 +117,15 @@ public class AccountController : Controller
 
         code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
         var result = await _userManager.ConfirmEmailAsync(user, code);
-        ViewBag.StatusMessage = result.Succeeded
-            ? "Thank you for confirming your email"
-            : "Error confirming your email.";
+
+        if (result.Succeeded)
+        {
+            ViewBag.Success = "Thank you for confirming your email";
+        }
+        else
+        {
+            ViewBag.Fail = "Error confirming your email";
+        }
 
         if (!result.Succeeded || !_userManager.IsInRoleAsync(user, Roles.Passive).Result) return View();
 
@@ -155,6 +162,7 @@ public class AccountController : Controller
 
         if (result.Succeeded)
         {
+
             HttpContext.Session.SetString("User", System.Text.Json.JsonSerializer.Serialize<ApplicationUser>(user));
 
             return RedirectToAction("Profile", "Account");
@@ -227,9 +235,12 @@ public class AccountController : Controller
             return BadRequest("Hatalı istek");
         }
 
-        ViewBag.Code = code;
-        ViewBag.UserId = userId;
-        return View();
+        var model = new ResetPasswordViewModel()
+        {
+            Code = code,
+            UserId = userId
+        };
+        return View(model);
     }
 
     [HttpPost]
@@ -352,6 +363,7 @@ public class AccountController : Controller
             ViewBag.Message = "Your profile has been updated successfully";
             var userl = await _userManager.FindByNameAsync(user.UserName);
             await _signInManager.SignInAsync(userl, true);
+            HttpContext.Session.SetString("User", System.Text.Json.JsonSerializer.Serialize<ApplicationUser>(user));
         }
         else
         {
@@ -361,6 +373,7 @@ public class AccountController : Controller
 
         return View(model);
     }
+
 
 
     [HttpPost, Authorize]

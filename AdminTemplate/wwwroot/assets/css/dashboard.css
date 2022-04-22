@@ -21637,3 +21637,11 @@ textarea.form-control {
 	font-size:10.5rem;
 	margin-top:0px;
 }
+
+.userbtns {
+    color: wheat!important;
+}
+
+.userbtns:hover {
+    color: white!important;
+}

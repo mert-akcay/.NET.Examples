@@ -1,1 +1,47 @@
-﻿<h2>@ViewBag.ConfirmMessage</h2>
+﻿@{
+    Layout = null;
+}
+
+@model LoginViewModel
+@{
+    Layout = null;
+    ViewBag.Title = "Confirm Email";
+}
+
+<!doctype html>
+<html lang="tr" dir="ltr">
+<head>
+    <partial name="Partials/_StylesMeta" />
+</head>
+<body>
+    <div class="login-img">
+        <div id="global-loader"></div>
+        <div class="page">
+            <div class="page-single">
+                <div class="container col-4 d-flex align-items-center" style="height: 80vh!important">
+                    <div class="card">
+                        <div class="card-body">
+                            @if (ViewBag.Success != null)
+                            {
+                                <h4 class="text-success">
+                                    @ViewBag.Success
+                                </h4>
+                            }else if (ViewBag.Fail != null)
+                            {
+                                <h4 class="text-danger">
+                                    @ViewBag.Fail
+                                </h4>
+                            }
+                            
+                            <div>
+                                <a class="text-azure" asp-controller="Home" asp-action="Index">Click</a> for returning to the main page
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <partial name="Partials/_Scripts" />
+</body>
+</html>
